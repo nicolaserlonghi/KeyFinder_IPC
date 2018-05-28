@@ -28,11 +28,11 @@ int padre(char* input_file, char* output_file) {
 		// TODO: Decidere che fare
 		//syserr("padre", "Il file di output esiste già");
 	}
-	// Conto il numero di righe del file di input
+	
     if((input_fd = open(input_file, O_RDONLY, 0644)) == -1) {
         syserr("padre", "impossibile aprire il file");
     }
-
+	// Conto il numero di righe del file di input
     int lines = 0;
     int n = 0;
     char buffer[SIZE_BUFFER];

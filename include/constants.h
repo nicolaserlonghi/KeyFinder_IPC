@@ -33,7 +33,7 @@
 
 #ifndef MSGKEY
 /**
- * @brief id code messaggi
+ * @brief id code di messaggi
  */
 #define MSGKEY 90
 #endif
