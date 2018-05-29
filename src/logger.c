@@ -28,7 +28,9 @@ int logger() {
     printf("Coda messaggi creata\n");
 
     // Ricevo i messaggi
-    while(polling_receive() == 0);
+    while(polling_receive() == 0) {
+        sleep(1);
+    }
     
 
     // Chiudo la coda
@@ -42,8 +44,8 @@ int logger() {
 
 int polling_receive() {
     // ricevo i messaggi dalla coda msgid
-    if(msgrcv(msgid, message, sizeof(struct Message) - sizeof(message->mtype), 0, 0) == -1) {
-        syserr("logger", "msgrcv");
+    if(msgrcv(msgid, message, sizeof(struct Message) - sizeof(message->mtype), 0, IPC_NOWAIT) == -1) {
+        return 0;
     }
 
     if(message->mtype == 1) {
