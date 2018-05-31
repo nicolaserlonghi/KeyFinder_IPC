@@ -22,6 +22,11 @@ struct Message {
 	char text[128];
 };
 
+struct Line {
+	unsigned clear;
+	unsigned encrypt;
+};
+
 #endif
 
 /// @}

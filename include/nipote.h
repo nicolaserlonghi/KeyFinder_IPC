@@ -35,7 +35,7 @@ void unlock();
  * @param line linea del file in input che deve essere elaborare
  * @param my_string ultima linea del file di input che è stata elaborata
  */
-void find_key(char* line, int my_string);
+void find_key(struct Line* line, int my_string);
 
 /*
  * @brief deposita il messaggio "chiave trovata/secondi" nella coda di messagi del processo logger
