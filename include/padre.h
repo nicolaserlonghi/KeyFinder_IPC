@@ -32,7 +32,7 @@ void detach_segments(char* shm, int shmid);
  * @param name nome file
  * @param segment indirizzo del segmento di memoria
  */
-void load_file(char* name, char* segment);
+void load_file(char* name, struct Line* segment);
 
 /**
  * @brief salva le chiavi sul file di output
@@ -48,6 +48,6 @@ void save_keys(char* name, unsigned* keys, int lines);
  * @param file in input
  * @param lines numero delle linee del file di input
  */
-int check_keys(unsigned* keys, char* input, int lines);
+int check_keys(unsigned* keys, struct Line* input, int lines);
 
 #endif

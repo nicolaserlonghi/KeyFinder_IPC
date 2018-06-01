@@ -11,15 +11,16 @@
 #include <time.h>
 #include <stdio.h>
 
-#include <nipote.h>
 #include <constants.h>
 #include <helpers.h>
 #include <types.h>
+#include <nipote.h>
+
 
 pid_t figlio_pid;
 int semid;
 struct Status* status;
-char* input;
+struct Line* input;
 void* output;
 struct sembuf *sops;
 int id;
@@ -37,7 +38,7 @@ int nipote(int mid, int lines) {
     
     // Ottengo il segmento di memoria condiviso per l'input
     int shmid_s1;
-    if((shmid_s1 = shmget(SHMKEY_INPUT, sizeof(struct Status), 0666)) < 0) {
+    if((shmid_s1 = shmget(SHMKEY_INPUT, sizeof(struct Status) + (sizeof(struct Line) * lines) + 1, 0666)) < 0) {
         syserr("nipote", "shmget");
     }
     void* shm_s1;
@@ -46,8 +47,7 @@ int nipote(int mid, int lines) {
 	}
 
     status = (struct Status*)shm_s1;
-    input = (char*)(shm_s1 + sizeof(struct Status));
-
+    input = (struct Line*)(shm_s1 + sizeof(struct Status));
     // Ottengo il segmento di memoria condiviso per l'output
     int shmid_s2;
     if((shmid_s2 = shmget(SHMKEY_OUTPUT, sizeof(struct Status), 0666)) < 0) {
@@ -58,7 +58,7 @@ int nipote(int mid, int lines) {
 	  	syserr("nipote", "shmat");
 	}
     output = (void*)shm_s2;
-    
+
     while(load_string(mlines) == 0);
 
     return 0;
@@ -76,7 +76,8 @@ int load_string(int lines) {
     // Segnalo lo stato
     kill(figlio_pid, SIGUSR1);
     unlock();
-    char* line = (char*)(input + ((my_string -1)* 1030));
+    struct Line* line = (struct Line*)(input + ((my_string-1)* sizeof(struct Line)));
+
     // Cerco la chiave
     find_key(line, (my_string-1));
     return 0;
@@ -102,31 +103,15 @@ void unlock() {
     }
 }
 
-void find_key(char* line, int my_string) {
+void find_key(struct Line* line, int my_string) {
     int fine_stringa = 0;
     char clear[512];
     char encrypt[512];
     int i = 0, j = 0;
-    
-    // Cerco la fine del testo in chiaro
-    while(line[fine_stringa] != '>') {
-        fine_stringa++;
-    }
-    // Copio la parola in chiaro
-    for(i = 1, j = 0; i < fine_stringa; i++, j++) {
-        clear[j] = line[i];
-    }
-    // Cerco la fine del testo criptato
-    for(i = (fine_stringa+3), j = 0; line[i] != '>'; i++, j++) {
-        encrypt[j] = line[i];
-    }
-    // Converto da char ad unsigned il testo in chiaro ed il testo cifrato
     unsigned key = 0;
-    unsigned *unsigned_clear = (unsigned*) clear;
-    unsigned *unsigned_encrypt = (unsigned*) encrypt;
     // Cerco la chiave di criptazione
     clock_t begin = clock();
-    while((*unsigned_clear ^ key) != *unsigned_encrypt) {
+    while((line->clear ^ key) != line->encrypt) {
         key++;
     }
     clock_t end = clock();
