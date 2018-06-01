@@ -22,6 +22,9 @@ struct Message {
 	char text[128];
 };
 
+/**
+ * @brief struttura linea file di input
+ */
 struct Line {
 	unsigned clear;
 	unsigned encrypt;
