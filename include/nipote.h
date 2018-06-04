@@ -13,6 +13,8 @@
  */
 int nipote(int id, int lines);
 
+void* nipote_thread(void* arg);
+
 /**
  * @brief legge la stringa dal segmento S1
  * @param lines numero di linee del file in input

@@ -93,15 +93,15 @@ Functions</h2></td></tr>
 <tr class="memitem:ga87c72da0067fa2090c10c433d66f6ab1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__padre.html#ga87c72da0067fa2090c10c433d66f6ab1">detach_segments</a> (char *shm, int shmid)</td></tr>
 <tr class="memdesc:ga87c72da0067fa2090c10c433d66f6ab1"><td class="mdescLeft">&#160;</td><td class="mdescRight">elimina il segmento di memoria condivisa  <a href="#ga87c72da0067fa2090c10c433d66f6ab1">More...</a><br /></td></tr>
 <tr class="separator:ga87c72da0067fa2090c10c433d66f6ab1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga408f75212bf4548764d8b6472b2050fe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__padre.html#ga408f75212bf4548764d8b6472b2050fe">load_file</a> (char *name, char *segment)</td></tr>
-<tr class="memdesc:ga408f75212bf4548764d8b6472b2050fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">carica il file di input  <a href="#ga408f75212bf4548764d8b6472b2050fe">More...</a><br /></td></tr>
-<tr class="separator:ga408f75212bf4548764d8b6472b2050fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadbb404532310e540acd66f317d0209e1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__padre.html#gadbb404532310e540acd66f317d0209e1">load_file</a> (char *name, struct <a class="el" href="structLine.html">Line</a> *segment)</td></tr>
+<tr class="memdesc:gadbb404532310e540acd66f317d0209e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">carica il file di input  <a href="#gadbb404532310e540acd66f317d0209e1">More...</a><br /></td></tr>
+<tr class="separator:gadbb404532310e540acd66f317d0209e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga92487eb69222f7e29550c36dfe508969"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__padre.html#ga92487eb69222f7e29550c36dfe508969">save_keys</a> (char *name, unsigned *keys, int lines)</td></tr>
 <tr class="memdesc:ga92487eb69222f7e29550c36dfe508969"><td class="mdescLeft">&#160;</td><td class="mdescRight">salva le chiavi sul file di output  <a href="#ga92487eb69222f7e29550c36dfe508969">More...</a><br /></td></tr>
 <tr class="separator:ga92487eb69222f7e29550c36dfe508969"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gada94e8dfeeb58a929d0d022232b5a3aa"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__padre.html#gada94e8dfeeb58a929d0d022232b5a3aa">check_keys</a> (unsigned *keys, char *input, int lines)</td></tr>
-<tr class="memdesc:gada94e8dfeeb58a929d0d022232b5a3aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">controlla che le chiavi siano corrette per tutta la lunghezza delle stringhe  <a href="#gada94e8dfeeb58a929d0d022232b5a3aa">More...</a><br /></td></tr>
-<tr class="separator:gada94e8dfeeb58a929d0d022232b5a3aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2c529e60712e18a69451c77b245fcf5d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__padre.html#ga2c529e60712e18a69451c77b245fcf5d">check_keys</a> (unsigned *keys, struct <a class="el" href="structLine.html">Line</a> *input, int lines)</td></tr>
+<tr class="memdesc:ga2c529e60712e18a69451c77b245fcf5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">controlla che le chiavi siano corrette per tutta la lunghezza delle stringhe  <a href="#ga2c529e60712e18a69451c77b245fcf5d">More...</a><br /></td></tr>
+<tr class="separator:ga2c529e60712e18a69451c77b245fcf5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <h2 class="groupheader">Function Documentation</h2>
@@ -147,7 +147,7 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="gada94e8dfeeb58a929d0d022232b5a3aa"></a>
+<a class="anchor" id="ga2c529e60712e18a69451c77b245fcf5d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -160,7 +160,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">char *&#160;</td>
+          <td class="paramtype">struct <a class="el" href="structLine.html">Line</a> *&#160;</td>
           <td class="paramname"><em>input</em>, </td>
         </tr>
         <tr>
@@ -224,7 +224,7 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ga408f75212bf4548764d8b6472b2050fe"></a>
+<a class="anchor" id="gadbb404532310e540acd66f317d0209e1"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -237,7 +237,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">char *&#160;</td>
+          <td class="paramtype">struct <a class="el" href="structLine.html">Line</a> *&#160;</td>
           <td class="paramname"><em>segment</em>&#160;</td>
         </tr>
         <tr>

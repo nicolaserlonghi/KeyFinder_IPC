@@ -18,7 +18,6 @@ int shmid_output;
 int input_fd; // File descriptor
 
 int padre(char* input_file, char* output_file) {
-	
 	if(access(input_file, F_OK | R_OK) != 0) {
 		syserr("padre", "il file di input non esiste");
 		return 1;

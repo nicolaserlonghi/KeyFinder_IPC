@@ -38,4 +38,9 @@
 #define MSGKEY 90
 #endif
 
+#ifndef THREAD
+
+#define THREAD
+#endif
+
 /// @}

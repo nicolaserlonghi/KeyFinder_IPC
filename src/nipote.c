@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <sys/msg.h>
 #include <time.h>
+#include <pthread.h>
 #include <stdio.h>
 
 #include <constants.h>
@@ -27,6 +28,7 @@ int id;
 time_t start, finish;
 
 int nipote(int mid, int lines) {
+    // TODO: Vedere se tenere
     figlio_pid = getppid();
     int mlines = lines;
     id = mid;
@@ -43,8 +45,8 @@ int nipote(int mid, int lines) {
     }
     void* shm_s1;
     if ((shm_s1 = shmat (shmid_s1 , NULL , 0)) == ( void *) -1) {
-	  	syserr("nipote", "shmat");
-	}
+        syserr("nipote", "shmat");
+    }
 
     status = (struct Status*)shm_s1;
     input = (struct Line*)(shm_s1 + sizeof(struct Status));
@@ -55,14 +57,22 @@ int nipote(int mid, int lines) {
     }
     void* shm_s2;
     if ((shm_s2 = shmat (shmid_s2 , NULL , 0)) == ( void *) -1) {
-	  	syserr("nipote", "shmat");
-	}
+        syserr("nipote", "shmat");
+    }
     output = (void*)shm_s2;
 
     while(load_string(mlines) == 0);
 
     return 0;
 }
+
+void* nipote_thread(void* arg) {
+    struct Package* package = (struct Package *)arg;
+    nipote(package->id, package->lines);
+
+    return (NULL);
+}
+
 
 int load_string(int lines) {
     lock();
@@ -74,7 +84,11 @@ int load_string(int lines) {
     status->granson = id;
     status->id_string = ++my_string;
     // Segnalo lo stato
-    kill(figlio_pid, SIGUSR1);
+    if(THREAD == 0) {
+        kill(figlio_pid, SIGUSR1);
+    } else {
+        pthread_kill(pthread_self(), SIGUSR1);
+    }
     unlock();
     struct Line* line = (struct Line*)(input + ((my_string-1)* sizeof(struct Line)));
 
