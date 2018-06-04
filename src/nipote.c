@@ -10,7 +10,6 @@
 #include <sys/msg.h>
 #include <time.h>
 #include <pthread.h>
-#include <stdio.h>
 
 #include <constants.h>
 #include <helpers.h>

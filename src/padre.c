@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <sys/shm.h>
 #include <fcntl.h>
@@ -87,7 +86,8 @@ int padre(char* input_file, char* output_file) {
 
 	if(check_keys(s2, file, lines) == -1) {
 		// TODO: decidere che fare
-		printf("Le chiavi trovate non sono corrette");
+		char buffer[] = "Le chiavi trovate non sono corrette";
+		printing(buffer);
 		//syserr("padre", "Le chiavi trovate non sono corrette");
 	}
 	save_keys(output_file, s2, lines);
@@ -122,7 +122,9 @@ void* attach_segments(key_t key, size_t size, int flags) {
 	} else {
 		shmid_output = shmid;
 	}
-	printf("Memoria condivisa creata\n");
+	char buffer[] = "Memoria condivisa creata";
+	printing(buffer);
+
 	return shm;
 }
 
@@ -134,7 +136,8 @@ void detach_segments(char* shm, int shmid) {
   	if(shmctl(shmid , IPC_RMID , NULL ) == -1) {
 		syserr("padre", "errore eliminazione memoria condivisa");
 	}
-  	printf("Memoria condivisa eliminata\n");
+	char buffer[] = "Memoria condivisa eliminata";
+	printing(buffer);
 }
 
 
@@ -198,12 +201,9 @@ void load_file(char* name, struct Line* segment) {
 			}
 		}
 	}
+	char buffer[] = "File letto e caricato in memoria";
+	printing(buffer);
 
-	printf("File letto e caricato in memoria\n");
-
-
-
-	
 	// Chiudo il file
 	if(close(input_fd) == -1) {
         syserr("padre", "errore nel chiudere il file");

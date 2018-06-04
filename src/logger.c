@@ -7,7 +7,6 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <fcntl.h>
-#include <stdio.h>
 #include <sys/msg.h>
 
 #include <logger.h>
@@ -25,7 +24,8 @@ int logger() {
 	if((msgid = msgget(MSGKEY, (0666|IPC_CREAT|IPC_EXCL))) == -1) {
         syserr("logger", "Creazione della coda di messaggi fallita");
 	}
-    printf("Coda messaggi creata\n");
+    char buffer[] = "Coda messaggi creata";
+    printing(buffer);
 
     // Ricevo i messaggi
     while(polling_receive() == 0) {
@@ -38,7 +38,9 @@ int logger() {
         syserr("logger", "Eliminazione della coda dei messaggi fallita");
 	}
 
-	printf("Coda messaggi eliminata\n");
+    char buf[] = "Coda messaggi eliminata";
+    printing(buf);
+	
     return 1;
 }
 
@@ -51,14 +53,15 @@ int polling_receive() {
     if(message->mtype == 1) {
         // Ricevo e stampare tutti i messaggi rimasti nella coda
         do {
-            printf("message = %s\n", message->text);
+            char* buffer = concat_string("Message = ", message->text);
+            printing(buffer);
         } while (msgrcv(msgid, message, sizeof(struct Message) - sizeof(message->mtype), 0, IPC_NOWAIT) != -1);
         
         return -1;
     }
 
     // stampo il contenuto del messaggio
-    printf("message = %s\n", message->text);
-
+    char* buffer = concat_string("Message = ", message->text);
+    printing(buffer);
     return 0;
 }
