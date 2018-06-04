@@ -7,12 +7,14 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/msg.h>
+#include <pthread.h>
 
-#include <figlio.h>
 #include <helpers.h>
 #include <constants.h>
 #include <types.h>
 #include <nipote.h>
+#include <figlio.h>
+
 
 struct Status* status;
 
@@ -47,26 +49,55 @@ int figlio(int lines) {
 	}
 
     status = (struct Status*)shm;
-    // Creo nipote 1
-    pid_t pid_nipote1 = fork();
-    if(pid_nipote1 == -1) {
-        syserr("figlio", "impossibile creare nipote");
-    }
-    else if(pid_nipote1 == 0) {
-        return nipote(1, lines);
-    }
 
-    pid_t pid_nipote2 = fork();
-    if(pid_nipote2 == -1) {
-        syserr("figlio", "impossibile creare nipote");
-    }
-    else if (pid_nipote2 == 0) {
-        return nipote(2, lines);
-    }
+    if(THREAD == 0) { 
+        // Creo nipote 1
+        pid_t pid_nipote1 = fork();
+        if(pid_nipote1 == -1) {
+            syserr("figlio", "impossibile creare nipote");
+        }
+        else if(pid_nipote1 == 0) {
+            return nipote(1, lines);
+        }
 
-    // Attendo la terminazione di entrambi i nipoti
-    wait(&pid_nipote1);
-    wait(&pid_nipote2);
+        pid_t pid_nipote2 = fork();
+        if(pid_nipote2 == -1) {
+            syserr("figlio", "impossibile creare nipote");
+        }
+        else if (pid_nipote2 == 0) {
+            return nipote(2, lines);
+        }
+
+        // Attendo la terminazione di entrambi i nipoti
+        wait(&pid_nipote1);
+        wait(&pid_nipote2);
+    } else {
+        int num_threads, i;
+
+        pthread_t* threads;   // per tenere traccia degli identificatori delle thread
+        struct Package* package;
+
+        // Viene creata una thread per ogni riga del file di input
+        threads = (pthread_t *) malloc(lines * sizeof(pthread_t));
+
+        // Viene creato un thread per ogni riga del file di input
+        num_threads = 0;
+        for(i = 0; i < lines; i++) {
+
+            package = (struct Package *)malloc(sizeof(struct Package));
+            package->id = num_threads;
+            package->lines = lines;
+
+            pthread_create(&threads[num_threads], NULL, nipote_thread, package);
+
+            num_threads++;
+        }
+
+       // Attendo che tutte le thread abbiano terminato la loro elaborazione
+        for (i = 0; i < (lines); i++) {
+            pthread_join(threads[i], NULL);
+        }
+    }
 
     // Deposito il messaggio di fine
     struct Message* message = (struct Message*)malloc(sizeof(struct Message));
@@ -92,15 +123,20 @@ int figlio(int lines) {
     if(semctl(semid, 0, IPC_RMID) == -1) {
         syserr("figlio", "semctl");
     }
-    printf("Semaforo eliminato\n");
 
-    // TODO: deposito il messaggio sulla coda del processo logger
+    char buffer[] = "Semaforo eliminato";
+    printing(buffer);
 }
 
 void status_updated() {
-    char* stringa= "ciao\0";
-    //printing("ciao");
-    printf("Il nipote %d sta analizzando la stringa %d \n",  status->granson, status->id_string);
+    char* granson = int_to_string(status->granson);
+    char* id_string = int_to_string(status->id_string);
+    char* tmp = "Il nipote ";
+    char* buffer = concat_string("Il nipote ", granson);
+    tmp = " sta analizzando la stringa ";
+    buffer = concat_string(buffer, " sta analizzando la stringa ");
+    buffer = concat_string(buffer, id_string);
+    printing(buffer);
 }
 
 void send_terminate() {

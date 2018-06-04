@@ -5,17 +5,32 @@ BIN_DIR    := bin/
 SRC        := $(wildcard $(SRC_DIR)*.c)
 OBJ        := $(SRC:$(SRC_DIR)%.c=$(OBJ_DIR)%.o)
 LD         := gcc
+LDLIBS     := -lpthread
 CFLAGS     := -I include/
 MKDIR      := mkdir -p
+EXECUTE	:= boo
 
+
+
+ifeq ($(EXECUTE), thread)
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c
 	@echo Compile $< -> $@
 	@$(MKDIR) build
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) -D THREAD=1 $(CFLAGS) -c $< -o $@
+
+$(PROJECT): $(OBJ)
+	@echo Linking $(PROJECT)
+	$(LD) $(LDFLAGS) $(OBJ) -o $(PROJECT) -lpthread
+else
+$(OBJ_DIR)%.o: $(SRC_DIR)%.c
+	@echo Compile $< -> $@
+	@$(MKDIR) build
+	$(CC) -D THREAD=0 $(CFLAGS) -c $< -o $@
 
 $(PROJECT): $(OBJ)
 	@echo Linking $(PROJECT)
 	$(LD) $(LDFLAGS) $(OBJ) -o $(PROJECT)
+endif
 
 all: $(PROJECT)
 
@@ -28,8 +43,9 @@ doc:
 	doxygen doxygen.cfg
 
 threads:
+	make EXECUTE=thread
 	@echo "Generating with threads"
-	doxygen doxygen.cfg
+	
 
 help:
 	@echo TODO

@@ -30,6 +30,12 @@ struct Line {
 	unsigned encrypt;
 };
 
+struct Package {
+	int id; // id della thread
+	int lines; // numero di righe
+};
+
+
 #endif
 
 /// @}
