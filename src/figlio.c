@@ -129,6 +129,7 @@ int figlio(int lines) {
 }
 
 void status_updated() {
+    // TODO: perchè non faccio la lock?
     char* granson = int_to_string(status->granson);
     char* id_string = int_to_string(status->id_string);
     char* tmp = "Il nipote ";

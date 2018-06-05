@@ -28,7 +28,11 @@ time_t start, finish;
 
 int nipote(int mid, int lines) {
     // TODO: Vedere se tenere
-    figlio_pid = getppid();
+    if(THREAD == 0) {
+        figlio_pid = getppid();
+    } else {
+        figlio_pid = getpid();
+    }
     int mlines = lines;
     id = mid;
     // Recupero il semaforo
@@ -83,11 +87,7 @@ int load_string(int lines) {
     status->granson = id;
     status->id_string = ++my_string;
     // Segnalo lo stato
-    if(THREAD == 0) {
-        kill(figlio_pid, SIGUSR1);
-    } else {
-        pthread_kill(pthread_self(), SIGUSR1);
-    }
+    kill(figlio_pid, SIGUSR1);
     unlock();
     struct Line* line = (struct Line*)(input + ((my_string-1)* sizeof(struct Line)));
 
