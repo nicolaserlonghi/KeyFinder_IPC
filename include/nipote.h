@@ -25,12 +25,12 @@ int load_string(int lines);
 /*
  * @brief blocca l'accesso esclusivo regione critica
  */
-void lock();
+void lock(int n_sem);
 
 /*
  * @brief sblocca l'accesso esclusivo regione critica
  */
-void unlock();
+void unlock(int n_sem);
 
 /*
  * @brief trova la chiave

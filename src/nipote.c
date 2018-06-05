@@ -22,7 +22,6 @@ int semid;
 struct Status* status;
 struct Line* input;
 void* output;
-struct sembuf *sops;
 int id;
 time_t start, finish;
 
@@ -36,10 +35,9 @@ int nipote(int mid, int lines) {
     int mlines = lines;
     id = mid;
     // Recupero il semaforo
-    if(((semid = semget(SEM_KEY, 1, 0666)) == -1)) {
+    if(((semid = semget(SEM_KEY, 2, 0666)) == -1)) {
         syserr("nipote", "impossibile recuperare il semaforo");
     }
-    sops = (struct sembuf*) malloc(sizeof(struct sembuf));
     
     // Ottengo il segmento di memoria condiviso per l'input
     int shmid_s1;
@@ -78,17 +76,18 @@ void* nipote_thread(void* arg) {
 
 
 int load_string(int lines) {
-    lock();
+    lock(0);
     int my_string = status->id_string;
     if(my_string == lines) {
-        unlock();
+        unlock(0);
         return -1;
     }
     status->granson = id;
     status->id_string = ++my_string;
     // Segnalo lo stato
     kill(figlio_pid, SIGUSR1);
-    unlock();
+    lock(1);
+    unlock(0);
     struct Line* line = (struct Line*)(input + ((my_string-1)* sizeof(struct Line)));
 
     // Cerco la chiave
@@ -96,24 +95,32 @@ int load_string(int lines) {
     return 0;
 }
 
-void lock() {
-    sops->sem_num = 0;
+void lock(int n_sem) {
+    struct sembuf *sops = (struct sembuf *)malloc(sizeof(struct sembuf));
+
+    sops->sem_num = n_sem;
     sops->sem_op = -1;
     sops->sem_flg = 0;
 
     if (semop(semid, sops, 1) == -1) {
         syserr("nipote", "impossibile bloccare il semaforo");
     }
+
+    free(sops);
 }
 
-void unlock() {
-    sops->sem_num = 0;
+void unlock(int n_sem) {
+    struct sembuf *sops = (struct sembuf *)malloc(sizeof(struct sembuf));
+
+    sops->sem_num = n_sem;
     sops->sem_op = 1;
     sops->sem_flg = 0;
 
     if (semop(semid, sops, 1) == -1) {
         syserr("nipote", "impossibile sbloccare il semaforo");
     }
+
+    free(sops);
 }
 
 void find_key(struct Line* line, int my_string) {

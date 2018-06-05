@@ -148,24 +148,22 @@ void load_file(char* name, struct Line* segment) {
 	char clear[512];
 	char encrypt[512];
 	int cont = 0;
+	int j = 0;
 
 	// lettura del contenuto del file nel buffer
 	while ((n = read(input_fd, buf, SIZE_BUFFER)) > 0) {
 
-		for(int i = 0, j = 0; i < n; i++, j++) {
-			
+		for(int i = 0; i < n; i++, j++) {
 			int index = offset + j;
-			
+						
 			if(buf[i] == '<') {
 				// start
 				cont = 1;
 				i++;
 				if(fine_stringa == 1) {
-			
 					j = 0;
 					index = offset + j;
 				}
-		
 			}
 
 			if(buf[i] == '>') {
@@ -176,7 +174,8 @@ void load_file(char* name, struct Line* segment) {
 
 			if(cont == 1) {
 				if(fine_stringa == 0) {
-					clear[index] = buf [i];
+					clear[index] = buf[i];
+					
 				} else {
 					encrypt[index] = buf[i];
 				}
@@ -200,6 +199,7 @@ void load_file(char* name, struct Line* segment) {
 				fine_stringa = 0;
 			}
 		}
+		
 	}
 	char buffer[] = "File letto e caricato in memoria";
 	printing(buffer);

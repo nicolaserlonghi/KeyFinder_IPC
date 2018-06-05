@@ -17,14 +17,14 @@
 
 
 struct Status* status;
+int semid;
 
 int figlio(int lines) {
     // Catturo la signal SIGUSR1
     signal(SIGUSR1, status_updated);
 
     // Creo il semaforo utilizzato dai sottoprocessi
-    int semid;
-    if((semid = semget(SEM_KEY, 1, IPC_CREAT | 0666)) == -1 ) {
+    if((semid = semget(SEM_KEY, 2, IPC_CREAT | 0666)) == -1 ) {
         syserr("figlio", "impossibile creare il semaforo");
     }
 
@@ -34,7 +34,15 @@ int figlio(int lines) {
     sops->sem_flg = 0;
 
     if (semop(semid, sops, 1) == -1) {
-        syserr("figlio", "impossibile impostare il semaforo a 1");
+        syserr("figlio", "impossibile impostare il semaforo 1");
+    }
+
+    sops->sem_num = 1;
+    sops->sem_op = 0;
+    sops->sem_flg = 0;
+
+    if (semop(semid, sops, 1) == -1) {
+        syserr("figlio", "impossibile impostare il semaforo 2");
     }
 
     // Ottengo il segmento di memoria condiviso per l'input
@@ -129,7 +137,7 @@ int figlio(int lines) {
 }
 
 void status_updated() {
-    // TODO: perchè non faccio la lock?
+  
     char* granson = int_to_string(status->granson);
     char* id_string = int_to_string(status->id_string);
     char* tmp = "Il nipote ";
@@ -138,6 +146,7 @@ void status_updated() {
     buffer = concat_string(buffer, " sta analizzando la stringa ");
     buffer = concat_string(buffer, id_string);
     printing(buffer);
+    unlock(1);
 }
 
 void send_terminate() {
