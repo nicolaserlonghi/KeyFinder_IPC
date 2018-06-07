@@ -38,6 +38,7 @@ int padre(char* input_file, char* output_file) {
 	int n_char = 0;
 	int offset = 0;
 	int fine_stringa = 0;
+	int j = 0;
 
     while((n = read(input_fd, buf, SIZE_BUFFER)) > 0) {
         for (int i = offset; i < n; i++) {
@@ -47,14 +48,7 @@ int padre(char* input_file, char* output_file) {
 				cont = 1;
 				i++;
 				if(fine_stringa == 1) {
-					offset = n - i - n_char;
-					if(offset < 0) {
-						offset = offset * -1;
-						i = n;
-					} else {
-						offset = 0;
-						i = n - (n - i - n_char);
-					} 
+					j = 0;
 				}
 			}
 
@@ -64,16 +58,20 @@ int padre(char* input_file, char* output_file) {
 					cont = 0;
 					fine_stringa = 1;
 				} else {
-					n_char = 0;
-					lines++;
-					cont = 0;
-					fine_stringa = 0;
+					if(n_char == j) {
+						n_char = 0;
+						cont = 0;
+						fine_stringa = 0;
+						lines++;
+					}
 				}
 			}
 
 			if(cont == 1 && i < n) {
 				if(fine_stringa == 0) {
 					n_char++;
+				} else {
+					j++;
 				}
 			}
 		}
@@ -187,6 +185,8 @@ void load_file(char* name, struct Line* segment) {
 	char encrypt[512];
 	int cont = 0;
 	int j = 0;
+	int offset = 0;
+	int n_char = 0;
 
 	// lettura del contenuto del file nel buffer
 	while ((n = read(input_fd, buf, SIZE_BUFFER)) > 0) {
@@ -208,23 +208,27 @@ void load_file(char* name, struct Line* segment) {
 					cont = 0;
 					fine_stringa = 1;
 				} else {
-					j = 0;
-				cont = 0;
-				unsigned* unsigned_clear = (unsigned*) clear;
-				unsigned* unsigned_encrypt = (unsigned*) encrypt;
+					if(n_char == j) {
+						n_char = 0;
+						cont = 0;
+						fine_stringa = 0;
+						j = 0;
 
-				segment->clear = *unsigned_clear;
-				segment->encrypt = *unsigned_encrypt;
-	
-				// Pulisco gli array
-				for(int i = 0; i < 512; i++) {
-				
-					clear[i] = 0;
-					encrypt[i] = 0;
+						unsigned* unsigned_clear = (unsigned*) clear;
+						unsigned* unsigned_encrypt = (unsigned*) encrypt;
 
-				}
-				segment+= sizeof(struct Line);
-				fine_stringa = 0;
+						segment->clear = *unsigned_clear;
+						segment->encrypt = *unsigned_encrypt;
+			
+						// Pulisco gli array
+						for(int i = 0; i < 512; i++) {
+						
+							clear[i] = 0;
+							encrypt[i] = 0;
+
+						}
+						segment+= sizeof(struct Line);
+					}
 				}
 			}
 
@@ -232,6 +236,7 @@ void load_file(char* name, struct Line* segment) {
 				if(fine_stringa == 0) {
 					clear[j] = buf[i];
 					j++;
+					n_char++;
 				} else {
 					encrypt[j] = buf[i];
 					j++;
