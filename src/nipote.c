@@ -26,14 +26,16 @@ int id;
 time_t start, finish;
 
 int nipote(int mid, int lines) {
+    int mlines = lines;
+    id = mid;
+    
     // TODO: Vedere se tenere
     if(THREAD == 0) {
         figlio_pid = getppid();
     } else {
         figlio_pid = getpid();
     }
-    int mlines = lines;
-    id = mid;
+    
     // Recupero il semaforo
     if(((semid = semget(SEM_KEY, 2, 0666)) == -1)) {
         syserr("nipote", "impossibile recuperare il semaforo");

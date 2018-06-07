@@ -16,20 +16,20 @@ ifeq ($(EXECUTE), thread)
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c
 	@echo Compile $< -> $@
 	@$(MKDIR) build
-	$(CC) -D THREAD=1 $(CFLAGS) -c $< -o $@
+	$(CC) -D THREAD=1 $(CFLAGS) -c $< -o $@ -ggdb
 
 $(PROJECT): $(OBJ)
 	@echo Linking $(PROJECT)
-	$(LD) $(LDFLAGS) $(OBJ) -o $(PROJECT) -lpthread
+	$(LD) $(LDFLAGS) $(OBJ) -o $(PROJECT) -lpthread -ggdb
 else
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c
 	@echo Compile $< -> $@
 	@$(MKDIR) build
-	$(CC) -D THREAD=0 $(CFLAGS) -c $< -o $@
+	$(CC) -D THREAD=0 $(CFLAGS) -c $< -o $@ -ggdb
 
 $(PROJECT): $(OBJ)
 	@echo Linking $(PROJECT)
-	$(LD) $(LDFLAGS) $(OBJ) -o $(PROJECT)
+	$(LD) $(LDFLAGS) $(OBJ) -o $(PROJECT) -ggdb
 endif
 
 all: $(PROJECT)
