@@ -37,7 +37,7 @@ int logger() {
     if (msgctl(msgid, IPC_RMID, NULL) == -1) {
         syserr("logger", "Eliminazione della coda dei messaggi fallita");
 	}
-
+    free(message);
     char buf[] = "Coda messaggi eliminata";
     printing(buf);
 	

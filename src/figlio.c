@@ -44,7 +44,8 @@ int figlio(int lines) {
     if (semop(semid, sops, 1) == -1) {
         syserr("figlio", "impossibile impostare il semaforo 2");
     }
-
+    free(sops);
+    
     // Ottengo il segmento di memoria condiviso per l'input
     int shmid;
     if((shmid = shmget(SHMKEY_INPUT, sizeof(struct Status), 0666)) < 0) {
@@ -105,6 +106,8 @@ int figlio(int lines) {
         for (i = 0; i < (lines); i++) {
             pthread_join(threads[i], NULL);
         }
+        free(package);
+        free(threads);
     }
 
     // Deposito il messaggio di fine
@@ -126,6 +129,7 @@ int figlio(int lines) {
     if(msgsnd(msgid, message, sizeof(struct Message) - sizeof(message->mtype), 0) == -1) {
         syserr("figlio", "msgsnd");
     }
+    free(message);
 
     // Elimino il semaforo
     if(semctl(semid, 0, IPC_RMID) == -1) {

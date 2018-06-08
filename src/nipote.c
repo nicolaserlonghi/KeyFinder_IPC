@@ -170,6 +170,8 @@ void send_timeelapsed(int time_spent) {
         syserr("nipote", "msgsnd");
         exit(1);
     }
+
+    free(message);
 }
 
 void save_key(unsigned key, int my_string) {
