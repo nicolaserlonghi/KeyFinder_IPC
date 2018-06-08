@@ -8,7 +8,7 @@
 #include <sys/sem.h>
 #include <fcntl.h>
 #include <sys/msg.h>
-#include <time.h>
+#include <sys/time.h>
 #include <pthread.h>
 
 #include <constants.h>
@@ -23,7 +23,6 @@ struct Status* status;
 struct Line* input;
 void* output;
 int id;
-time_t start, finish;
 
 int nipote(int mid, int lines) {
     int mlines = lines;
@@ -131,14 +130,18 @@ void find_key(struct Line* line, int my_string) {
     char encrypt[512];
     int i = 0, j = 0;
     unsigned key = 0;
+    struct timeval start, finish;
+
+
     // Cerco la chiave di criptazione
-    clock_t begin = clock();
+    gettimeofday(&start, NULL); 
     while((line->clear ^ key) != line->encrypt) {
         key++;
     }
-    clock_t end = clock();
+    gettimeofday(&finish, NULL);
     // Calcolo il tempo impiegato
-    int time_spent = (int)(end - begin) / CLOCKS_PER_SEC;
+    int time_spent = (int)(finish.tv_sec - start.tv_sec);
+
     save_key(key, my_string);
     // deposito il messaggio
     send_timeelapsed(time_spent);
