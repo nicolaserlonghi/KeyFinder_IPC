@@ -17,28 +17,7 @@
 #include <nipote.h>
 
 
-pid_t figlio_pid;
-int semid;
-struct Status* status;
-struct Line* input;
-void* output;
-int id;
-
 int nipote(int mid, int lines) {
-    int mlines = lines;
-    id = mid;
-    
-    // TODO: Vedere se tenere
-    if(THREAD == 0) {
-        figlio_pid = getppid();
-    } else {
-        figlio_pid = getpid();
-    }
-    
-    // Recupero il semaforo
-    if(((semid = semget(SEM_KEY, 2, 0666)) == -1)) {
-        syserr("nipote", "impossibile recuperare il semaforo");
-    }
     
     // Ottengo il segmento di memoria condiviso per l'input
     int shmid_s1;
@@ -50,8 +29,8 @@ int nipote(int mid, int lines) {
         syserr("nipote", "shmat");
     }
 
-    status = (struct Status*)shm_s1;
-    input = (struct Line*)(shm_s1 + sizeof(struct Status));
+    struct Status* status = (struct Status*)shm_s1;
+    struct Line* input = (struct Line*)(shm_s1 + sizeof(struct Status));
     // Ottengo il segmento di memoria condiviso per l'output
     int shmid_s2;
     if((shmid_s2 = shmget(SHMKEY_OUTPUT, sizeof(struct Status), 0666)) < 0) {
@@ -61,9 +40,9 @@ int nipote(int mid, int lines) {
     if ((shm_s2 = shmat (shmid_s2 , NULL , 0)) == ( void *) -1) {
         syserr("nipote", "shmat");
     }
-    output = (void*)shm_s2;
+    void* output = (void*)shm_s2;
 
-    while(load_string(mlines) == 0);
+    while(load_string(lines, mid, status, input, output) == 0);
 
     return 0;
 }
@@ -76,27 +55,37 @@ void* nipote_thread(void* arg) {
 }
 
 
-int load_string(int lines) {
+int load_string(int lines, int mid, struct Status* status, struct Line* input, void* output) {
     lock(0);
     int my_string = status->id_string;
     if(my_string == lines) {
         unlock(0);
         return -1;
     }
-    status->granson = id;
+    status->granson = mid;
     status->id_string = ++my_string;
     // Segnalo lo stato
-    kill(figlio_pid, SIGUSR1);
+    if(THREAD == 0) {
+        kill(getppid(), SIGUSR1);
+    } else {
+        kill(getpid(), SIGUSR1);
+    }
+    
     lock(1);
     unlock(0);
     struct Line* line = (struct Line*)(input + ((my_string-1)* sizeof(struct Line)));
 
     // Cerco la chiave
-    find_key(line, (my_string-1));
+    find_key(line, (my_string-1), output);
     return 0;
 }
 
 void lock(int n_sem) {
+     // Recupero il semaforo
+    int semid;
+    if(((semid = semget(SEM_KEY, 2, 0666)) == -1)) {
+        syserr("nipote", "impossibile recuperare il semaforo");
+    }
     struct sembuf *sops = (struct sembuf *)malloc(sizeof(struct sembuf));
 
     sops->sem_num = n_sem;
@@ -111,6 +100,11 @@ void lock(int n_sem) {
 }
 
 void unlock(int n_sem) {
+     // Recupero il semaforo
+    int semid;
+    if(((semid = semget(SEM_KEY, 2, 0666)) == -1)) {
+        syserr("nipote", "impossibile recuperare il semaforo");
+    }
     struct sembuf *sops = (struct sembuf *)malloc(sizeof(struct sembuf));
 
     sops->sem_num = n_sem;
@@ -124,7 +118,7 @@ void unlock(int n_sem) {
     free(sops);
 }
 
-void find_key(struct Line* line, int my_string) {
+void find_key(struct Line* line, int my_string, void* output) {
     int fine_stringa = 0;
     char clear[512];
     char encrypt[512];
@@ -142,7 +136,7 @@ void find_key(struct Line* line, int my_string) {
     // Calcolo il tempo impiegato
     int time_spent = (int)(finish.tv_sec - start.tv_sec);
 
-    save_key(key, my_string);
+    save_key(key, my_string, output);
     // deposito il messaggio
     send_timeelapsed(time_spent);
 }
@@ -174,7 +168,7 @@ void send_timeelapsed(int time_spent) {
     free(message);
 }
 
-void save_key(unsigned key, int my_string) {
+void save_key(unsigned key, int my_string, void* output) {
     // Copio la chiave nello spazio di memoria condiviso
     unsigned* write = (unsigned*) output + (my_string); 
     *write = key;

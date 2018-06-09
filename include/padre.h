@@ -32,7 +32,7 @@ void detach_segments(char* shm, int shmid);
  * @param name nome file
  * @param segment indirizzo del segmento di memoria
  */
-void load_file(char* name, struct Line* segment);
+void load_file(char* name, struct Line* segment, int input_fd);
 
 /**
  * @brief salva le chiavi sul file di output

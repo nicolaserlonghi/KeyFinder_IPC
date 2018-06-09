@@ -14,9 +14,11 @@
 
 int shmid_input;
 int shmid_output;
-int input_fd; // File descriptor
+
 
 int padre(char* input_file, char* output_file) {
+	int input_fd; // File descriptor
+
 	if(access(input_file, F_OK | R_OK) != 0) {
 		syserr("padre", "il file di input non esiste");
 		return 1;
@@ -88,7 +90,7 @@ int padre(char* input_file, char* output_file) {
 	status->granson = 0;
 	struct Line* file = (struct Line*)(s1 + sizeof(struct Status));
 	// leggo il file di input e lo carico nella memoria condivisa
-	load_file(input_file, file);
+	load_file(input_file, file, input_fd);
 	// Creo il segmento di memoria condiviso per l'output
 	void* s2 = (void*)attach_segments(SHMKEY_OUTPUT, (lines + 1030), IPC_CREAT | 0666);
 
@@ -177,7 +179,7 @@ void detach_segments(char* shm, int shmid) {
 }
 
 
-void load_file(char* name, struct Line* segment) {
+void load_file(char* name, struct Line* segment, int input_fd) {
 	int n;
 	char buf[SIZE_BUFFER]; // buffer di lettura
 	int fine_stringa = 0;

@@ -4,7 +4,6 @@
 #include <helpers.h>
 
 int main(int argc, char *argv[]) {
-	
 	if (argc != 3) {
 		syserr("main", "key_finder <input> <output>");
         return 1;

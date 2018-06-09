@@ -16,10 +16,9 @@
 #include <figlio.h>
 
 
-struct Status* status;
-int semid;
-
 int figlio(int lines) {
+    int semid;
+
     // Catturo la signal SIGUSR1
     signal(SIGUSR1, status_updated);
 
@@ -45,19 +44,7 @@ int figlio(int lines) {
         syserr("figlio", "impossibile impostare il semaforo 2");
     }
     free(sops);
-    
-    // Ottengo il segmento di memoria condiviso per l'input
-    int shmid;
-    if((shmid = shmget(SHMKEY_INPUT, sizeof(struct Status), 0666)) < 0) {
-        syserr("figlio", "shmget");
-    }
 
-    void* shm;
-    if ((shm = shmat (shmid , NULL , 0)) == ( void *) -1) {
-	  	syserr("figlio", "shmat");
-	}
-
-    status = (struct Status*)shm;
 
     if(THREAD == 0) { 
         // Creo nipote 1
@@ -94,7 +81,7 @@ int figlio(int lines) {
         for(i = 0; i < lines; i++) {
 
             package = (struct Package *)malloc(sizeof(struct Package));
-            package->id = num_threads;
+            package->id = num_threads+1;
             package->lines = lines;
 
             pthread_create(&threads[num_threads], NULL, nipote_thread, package);
@@ -110,6 +97,43 @@ int figlio(int lines) {
         free(threads);
     }
 
+    send_terminate();
+
+    // Elimino il semaforo
+    if(semctl(semid, 0, IPC_RMID) == -1) {
+        syserr("figlio", "semctl");
+    }
+
+    char buffer[] = "Semaforo eliminato";
+    printing(buffer);
+}
+
+void status_updated() {
+    // Ottengo il segmento di memoria condiviso per l'input
+    int shmid;
+    if((shmid = shmget(SHMKEY_INPUT, sizeof(struct Status), 0666)) < 0) {
+        syserr("figlio", "shmget");
+    }
+
+    void* shm;
+    if ((shm = shmat (shmid , NULL , 0)) == ( void *) -1) {
+	  	syserr("figlio", "shmat");
+	}
+
+    struct Status* status = (struct Status*)shm;
+
+    char* granson = int_to_string(status->granson);
+    char* id_string = int_to_string(status->id_string);
+    char* tmp = "Il nipote ";
+    char* buffer = concat_string("Il nipote ", granson);
+    tmp = " sta analizzando la stringa ";
+    buffer = concat_string(buffer, " sta analizzando la stringa ");
+    buffer = concat_string(buffer, id_string);
+    printing(buffer);
+    unlock(1);
+}
+
+void send_terminate() {
     // Deposito il messaggio di fine
     struct Message* message = (struct Message*)malloc(sizeof(struct Message));
 
@@ -129,30 +153,6 @@ int figlio(int lines) {
     if(msgsnd(msgid, message, sizeof(struct Message) - sizeof(message->mtype), 0) == -1) {
         syserr("figlio", "msgsnd");
     }
+    
     free(message);
-
-    // Elimino il semaforo
-    if(semctl(semid, 0, IPC_RMID) == -1) {
-        syserr("figlio", "semctl");
-    }
-
-    char buffer[] = "Semaforo eliminato";
-    printing(buffer);
-}
-
-void status_updated() {
-  
-    char* granson = int_to_string(status->granson);
-    char* id_string = int_to_string(status->id_string);
-    char* tmp = "Il nipote ";
-    char* buffer = concat_string("Il nipote ", granson);
-    tmp = " sta analizzando la stringa ";
-    buffer = concat_string(buffer, " sta analizzando la stringa ");
-    buffer = concat_string(buffer, id_string);
-    printing(buffer);
-    unlock(1);
-}
-
-void send_terminate() {
-
 }

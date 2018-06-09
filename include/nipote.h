@@ -20,7 +20,7 @@ void* nipote_thread(void* arg);
  * @param lines numero di linee del file in input
  * @return 0 se c'è una stringa da decodificare, altrimenti -1
  */
-int load_string(int lines);
+int load_string(int lines, int mid, struct Status* status, struct Line* input, void* output);
 
 /*
  * @brief blocca l'accesso esclusivo regione critica
@@ -37,7 +37,7 @@ void unlock(int n_sem);
  * @param line linea del file in input che deve essere elaborare
  * @param my_string ultima linea del file di input che è stata elaborata
  */
-void find_key(struct Line* line, int my_string);
+void find_key(struct Line* line, int my_string, void* output);
 
 /*
  * @brief deposita il messaggio "chiave trovata/secondi" nella coda di messagi del processo logger
@@ -50,7 +50,7 @@ void send_timeelapsed(int time_spent);
  * @param key chiave da salvare
  * @param my_string linea del file di input a cui corrisponde la chiave
  */
-void save_key(unsigned key, int my_string);
+void save_key(unsigned key, int my_string, void* output);
 
 #endif
 
