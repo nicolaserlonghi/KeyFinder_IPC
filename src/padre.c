@@ -84,9 +84,7 @@ int padre(char* input_file, char* output_file) {
 	lseek(input_fd, 0, SEEK_SET);
 
 	// Creo il segmento di memoria condiviso per l'input
-	int a = sizeof(struct Status) + (sizeof(struct Line) * lines) + 1;
 	void* s1 = attach_segments(SHMKEY_INPUT, sizeof(struct Status) + (sizeof(struct Line) * lines) + 1, IPC_CREAT | 0666);
-
 	struct Status* status = (struct Status*)s1;
 	status->id_string = 0;
 	status->granson = 0;
@@ -232,7 +230,7 @@ void load_file(char* name, struct Line* segment, int input_fd) {
 							encrypt[i] = 0;
 
 						}
-						segment+= sizeof(struct Line);
+						segment++;
 					}
 				}
 			}
@@ -285,13 +283,11 @@ void save_keys(char* name, unsigned* keys, int lines) {
 int check_keys(unsigned* keys, struct Line* input, int lines) {
 	int i;
 	for(i = 0; i < lines; i++) {
-
 		struct Line* line = (struct Line*)(input + (i * sizeof(struct Line)));
 		unsigned key = keys[i];
 
 		// Cripto il testo in chiaro con la chiave trovata e controllo che sia corretto
 		if((line->clear ^ key) != line->encrypt) {
-
 			return -1;
 		}
 

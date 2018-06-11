@@ -78,7 +78,7 @@ int figlio(int lines) {
 
         // Viene creato un thread per ogni riga del file di input
         num_threads = 0;
-        for(i = 0; i < lines; i++) {
+        for(i = 0; i < 4; i++) {
 
             package = (struct Package *)malloc(sizeof(struct Package));
             package->id = num_threads+1;

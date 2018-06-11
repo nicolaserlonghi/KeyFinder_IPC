@@ -73,7 +73,7 @@ int load_string(int lines, int mid, struct Status* status, struct Line* input, v
     
     lock(1);
     unlock(0);
-    struct Line* line = (struct Line*)(input + ((my_string-1)* sizeof(struct Line)));
+    struct Line* line = (struct Line*)(&input[my_string-1]);
 
     // Cerco la chiave
     find_key(line, (my_string-1), output);
@@ -126,7 +126,6 @@ void find_key(struct Line* line, int my_string, void* output) {
     unsigned key = 0;
     struct timeval start, finish;
 
-
     // Cerco la chiave di criptazione
     gettimeofday(&start, NULL); 
     while((line->clear ^ key) != line->encrypt) {
@@ -134,7 +133,7 @@ void find_key(struct Line* line, int my_string, void* output) {
     }
     gettimeofday(&finish, NULL);
     // Calcolo il tempo impiegato
-    int time_spent = (int)(finish.tv_sec - start.tv_sec);
+    int time_spent = (int)(finish.tv_nsec - start.tv_nsec);
 
     save_key(key, my_string, output);
     // deposito il messaggio
