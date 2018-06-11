@@ -21,7 +21,7 @@ int nipote(int mid, int lines) {
     
     // Ottengo il segmento di memoria condiviso per l'input
     int shmid_s1;
-    if((shmid_s1 = shmget(SHMKEY_INPUT, sizeof(struct Status) + (sizeof(struct Line) * lines) + 1, 0666)) < 0) {
+    if((shmid_s1 = shmget(SHMKEY_INPUT, sizeof(struct Status) + (sizeof(struct Line) * lines), 0666)) < 0) {
         syserr("nipote", "shmget");
     }
     void* shm_s1;
@@ -33,7 +33,7 @@ int nipote(int mid, int lines) {
     struct Line* input = (struct Line*)(shm_s1 + sizeof(struct Status));
     // Ottengo il segmento di memoria condiviso per l'output
     int shmid_s2;
-    if((shmid_s2 = shmget(SHMKEY_OUTPUT, sizeof(struct Status), 0666)) < 0) {
+    if((shmid_s2 = shmget(SHMKEY_OUTPUT, lines * sizeof(unsigned), 0666)) < 0) {
         syserr("nipote", "shmget");
     }
     void* shm_s2;
@@ -120,20 +120,18 @@ void unlock(int n_sem) {
 
 void find_key(struct Line* line, int my_string, void* output) {
     int fine_stringa = 0;
-    char clear[512];
-    char encrypt[512];
     int i = 0, j = 0;
     unsigned key = 0;
     struct timeval start, finish;
 
     // Cerco la chiave di criptazione
     gettimeofday(&start, NULL); 
-    while((line->clear ^ key) != line->encrypt) {
+    while((line->clear[0] ^ key) != line->encrypt[0]) {
         key++;
     }
     gettimeofday(&finish, NULL);
     // Calcolo il tempo impiegato
-    int time_spent = (int)(finish.tv_nsec - start.tv_nsec);
+    int time_spent = (int)(finish.tv_sec - start.tv_sec);
 
     save_key(key, my_string, output);
     // deposito il messaggio

@@ -36,55 +36,34 @@ int padre(char* input_file, char* output_file) {
     int lines = 0;
     int n = 0;
     char buf[SIZE_BUFFER];
-	int cont = 0;
 	int n_char = 0;
-	int offset = 0;
-	int fine_stringa = 0;
 	int j = 0;
+	int control = 1029;
 
     while((n = read(input_fd, buf, SIZE_BUFFER)) > 0) {
-		int i;
-        for (i = offset; i < n; i++) {
-
-			if(buf[i] == '<' && cont == 0) {
-				// start
-				cont = 1;
-				i++;
-				if(fine_stringa == 1) {
-					j = 0;
+		int i = 0;
+		for(i = 0; i < n; i++) {
+			if(j != control) {
+				if(buf[i] == '>' && n_char == 0) {
+					n_char = j;
+					control = (n_char*2)+3;
+					lines++;
 				}
-			}
-
-			if(buf[i] == '>' && cont == 1 && i < n) {
-				// fine
-				if(fine_stringa == 0) {
-					cont = 0;
-					fine_stringa = 1;
-				} else {
-					if(n_char == j) {
-						n_char = 0;
-						cont = 0;
-						fine_stringa = 0;
-						lines++;
-					}
-				}
-			}
-
-			if(cont == 1 && i < n) {
-				if(fine_stringa == 0) {
-					n_char++;
-				} else {
-					j++;
-				}
+				j++;
+			} else {
+				j = 0;
+				n_char = 0;
+				control = 1029;
 			}
 		}
     }
+
 	printf("lines = %d\n", lines);
 	// Riposiziono l'offset a zero
 	lseek(input_fd, 0, SEEK_SET);
 
 	// Creo il segmento di memoria condiviso per l'input
-	void* s1 = attach_segments(SHMKEY_INPUT, sizeof(struct Status) + (sizeof(struct Line) * lines) + 1, IPC_CREAT | 0666);
+	void* s1 = attach_segments(SHMKEY_INPUT, sizeof(struct Status) + (sizeof(struct Line) * lines), IPC_CREAT | 0666);
 	struct Status* status = (struct Status*)s1;
 	status->id_string = 0;
 	status->granson = 0;
@@ -182,71 +161,69 @@ void detach_segments(char* shm, int shmid) {
 void load_file(char* name, struct Line* segment, int input_fd) {
 	int n;
 	char buf[SIZE_BUFFER]; // buffer di lettura
-	int fine_stringa = 0;
-	char clear[512];
-	char encrypt[512];
-	int cont = 0;
 	int j = 0;
-	int offset = 0;
 	int n_char = 0;
+	char temp[1030] = "";
+	int control = 1029;
 
 	// lettura del contenuto del file nel buffer
 	while ((n = read(input_fd, buf, SIZE_BUFFER)) > 0) {
 		int i = 0;
 		for(i = 0; i < n; i++) {
-			
-			if(buf[i] == '<' && cont == 0) {
-				// start
-				cont = 1;
-				i++;
-				if(fine_stringa == 1) {
-					j = 0;
+			if(j != control) {
+				if(buf[i] == '>' && n_char == 0) {
+					n_char = j;
+					control = (n_char*2)+3;
 				}
-			}
-
-			if(buf[i] == '>' && cont == 1 && i < n) {
-				// fine
-				if(fine_stringa == 0) {
-					cont = 0;
-					fine_stringa = 1;
-				} else {
-					if(n_char == j) {
-						n_char = 0;
-						cont = 0;
-						fine_stringa = 0;
-						j = 0;
-
-						unsigned* unsigned_clear = (unsigned*) clear;
-						unsigned* unsigned_encrypt = (unsigned*) encrypt;
-
-						segment->clear = *unsigned_clear;
-						segment->encrypt = *unsigned_encrypt;
-			
-						// Pulisco gli array
-						int i;
-						for(i = 0; i < 512; i++) {
-						
-							clear[i] = 0;
-							encrypt[i] = 0;
-
+				temp[j] = buf[i];
+				j++;
+			} else {
+				j = 0;
+				int z = 0;
+				int i = 0;
+				char sup[4];
+				
+				for(i = 1; i < n_char; i++, z++) {
+					sup[z] = temp[i];
+					if(z == 3) {
+						z = -1;
+						unsigned* unsigned_clear = (unsigned*) sup;
+						segment->clear[j] = *unsigned_clear;
+						j++;
+						// Pulisco l'array
+						int i = 0;
+						for(i = 0; i < 4; i++) {
+							sup[i] = 0;
 						}
-						segment++;
 					}
 				}
-			}
-
-			if(cont == 1 && i < n) {
-				if(fine_stringa == 0) {
-					clear[j] = buf[i];
-					j++;
-					n_char++;
-				} else {
-					encrypt[j] = buf[i];
-					j++;
+				j = 0;
+				z = 0;
+				for(i = n_char+3; i < (n_char*2)+3; i++, z++) {
+					sup[z] = temp[i];
+					if(z == 3) {
+						z = -1;
+						unsigned* unsigned_encrypt = (unsigned*) sup;
+						segment->encrypt[j] = *unsigned_encrypt;
+						j++;
+						// Pulisco l'array
+						int i = 0;
+						for(i = 0; i < 4; i++) {
+							sup[i] = 0;
+						}
+					}
+				}
+				j = 0;
+				n_char = 0;
+				control = 1029;
+				segment++;
+				// Pulisco l'array
+				for(i = 0; i < 1030; i++) {
+					temp[i] = 0;
 				}
 			}
+			
 		}
-		
 	}
 	char buffer[] = "File letto e caricato in memoria";
 	printing(buffer);
@@ -281,14 +258,19 @@ void save_keys(char* name, unsigned* keys, int lines) {
 }
 
 int check_keys(unsigned* keys, struct Line* input, int lines) {
-	int i;
+	int i = 0;
 	for(i = 0; i < lines; i++) {
 		struct Line* line = (struct Line*)(input + (i * sizeof(struct Line)));
 		unsigned key = keys[i];
 
 		// Cripto il testo in chiaro con la chiave trovata e controllo che sia corretto
-		if((line->clear ^ key) != line->encrypt) {
-			return -1;
+		int j = 0;
+		for(j = 0; j < 128; j++) {
+			if(line->clear[j] != 0 && line->encrypt[j] != 0) {
+				if((line->clear[j] ^ key) != line->encrypt[j]) {
+					return -1;
+				}
+			}
 		}
 
 		return 0;

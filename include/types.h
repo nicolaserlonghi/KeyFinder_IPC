@@ -26,8 +26,8 @@ struct Message {
  * @brief struttura linea file di input
  */
 struct Line {
-	unsigned clear;
-	unsigned encrypt;
+	unsigned clear[128];
+	unsigned encrypt[128];
 };
 
 struct Package {
