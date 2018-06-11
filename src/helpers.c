@@ -85,7 +85,8 @@ char* unsigned_to_hexa(unsigned numero){
 unsigned string_to_unsigned(char *stringa){
     unsigned numero = 0;
     
-    for(int i = 0; stringa[i] != '\0' ; i++){
+    int i;
+    for(i = 0; stringa[i] != '\0' ; i++){
         numero = (numero * 10) + (stringa[i] - '0');
     }
 
@@ -124,7 +125,7 @@ char* concat_string(char* stringa1, char* stringa2){
 void printing(char *stringa){
 
     int i = 0;
-    for(; stringa[i] != '\0'; i++);
+    for( i = 0; stringa[i] != '\0'; i++);
     stringa[i] = '\n';
     i++;
     write(1, stringa, i);

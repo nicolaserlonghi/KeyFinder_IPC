@@ -155,7 +155,8 @@ void send_timeelapsed(int time_spent) {
     // Creo il messaggio da inviare
     char* tmp = "Chiave trovata in ";
     char* buffer = concat_string(tmp, time);
-    for(int i = 0; i < string_length(buffer); i++) {
+    int i = 0;
+    for(i = 0; i < string_length(buffer); i++) {
         message->text[i] = buffer[i];
     }
     message->mtype = 2;

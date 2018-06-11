@@ -146,7 +146,8 @@ void send_terminate() {
     // Creo il messaggio da inviare
     char tmp[128] = "Ricerca conclusa";
     message->mtype = 1;
-    for(int i = 0; i < 128; i++) {
+    int i;
+    for(i = 0; i < 128; i++) {
         message->text[i] = tmp[i];
     }
     // Spedisco il messaggio e rimango in attesa se la coda è piena

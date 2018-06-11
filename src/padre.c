@@ -43,7 +43,8 @@ int padre(char* input_file, char* output_file) {
 	int j = 0;
 
     while((n = read(input_fd, buf, SIZE_BUFFER)) > 0) {
-        for (int i = offset; i < n; i++) {
+		int i;
+        for (i = offset; i < n; i++) {
 
 			if(buf[i] == '<' && cont == 0) {
 				// start
@@ -83,6 +84,7 @@ int padre(char* input_file, char* output_file) {
 	lseek(input_fd, 0, SEEK_SET);
 
 	// Creo il segmento di memoria condiviso per l'input
+	int a = sizeof(struct Status) + (sizeof(struct Line) * lines) + 1;
 	void* s1 = attach_segments(SHMKEY_INPUT, sizeof(struct Status) + (sizeof(struct Line) * lines) + 1, IPC_CREAT | 0666);
 
 	struct Status* status = (struct Status*)s1;
@@ -92,7 +94,7 @@ int padre(char* input_file, char* output_file) {
 	// leggo il file di input e lo carico nella memoria condivisa
 	load_file(input_file, file, input_fd);
 	// Creo il segmento di memoria condiviso per l'output
-	void* s2 = (void*)attach_segments(SHMKEY_OUTPUT, (lines + 1030), IPC_CREAT | 0666);
+	void* s2 = (void*)attach_segments(SHMKEY_OUTPUT, (lines * sizeof(unsigned)), IPC_CREAT | 0666);
 
 	// Creo il sottoprocesso logger
 	pid_t pid_logger = fork();
@@ -192,8 +194,8 @@ void load_file(char* name, struct Line* segment, int input_fd) {
 
 	// lettura del contenuto del file nel buffer
 	while ((n = read(input_fd, buf, SIZE_BUFFER)) > 0) {
-
-		for(int i = 0; i < n; i++) {
+		int i = 0;
+		for(i = 0; i < n; i++) {
 			
 			if(buf[i] == '<' && cont == 0) {
 				// start
@@ -223,7 +225,8 @@ void load_file(char* name, struct Line* segment, int input_fd) {
 						segment->encrypt = *unsigned_encrypt;
 			
 						// Pulisco gli array
-						for(int i = 0; i < 512; i++) {
+						int i;
+						for(i = 0; i < 512; i++) {
 						
 							clear[i] = 0;
 							encrypt[i] = 0;
@@ -268,7 +271,8 @@ void save_keys(char* name, unsigned* keys, int lines) {
 		char *hexa = unsigned_to_hexa(*(keys + i));
 		int hexa_length = 8 - string_length(hexa);
 		char *temp = "";
-		for(int i = 0; i < hexa_length; i++) {
+		int i;
+		for(i = 0; i < hexa_length; i++) {
 			temp = concat_string(temp, "0");
 		}
 		char* buffer = concat_string("0x", temp);
@@ -279,7 +283,8 @@ void save_keys(char* name, unsigned* keys, int lines) {
 }
 
 int check_keys(unsigned* keys, struct Line* input, int lines) {
-	for(int i = 0; i < lines; i++) {
+	int i;
+	for(i = 0; i < lines; i++) {
 
 		struct Line* line = (struct Line*)(input + (i * sizeof(struct Line)));
 		unsigned key = keys[i];
