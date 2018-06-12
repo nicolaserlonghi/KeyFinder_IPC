@@ -53,7 +53,7 @@ int figlio(int lines) {
             syserr("figlio", "impossibile creare nipote");
         }
         else if(pid_nipote1 == 0) {
-            return nipote(1, lines);
+            exit(nipote(1, lines));
         }
 
         pid_t pid_nipote2 = fork();
@@ -61,7 +61,7 @@ int figlio(int lines) {
             syserr("figlio", "impossibile creare nipote");
         }
         else if (pid_nipote2 == 0) {
-            return nipote(2, lines);
+            exit(nipote(2, lines));
         }
 
         // Attendo la terminazione di entrambi i nipoti
@@ -79,7 +79,6 @@ int figlio(int lines) {
         // Viene creato un thread per ogni riga del file di input
         num_threads = 0;
         for(i = 0; i < NUM_THREADS && i < lines; i++) {
-
             package = (struct Package *)malloc(sizeof(struct Package));
             package->id = num_threads+1;
             package->lines = lines;
@@ -89,10 +88,11 @@ int figlio(int lines) {
             num_threads++;
         }
 
-       // Attendo che tutte le thread abbiano terminato la loro elaborazione
+        // Attendo che tutte le thread abbiano terminato la loro elaborazione
         for (i = 0; i < (lines); i++) {
             pthread_join(threads[i], NULL);
         }
+
         free(package);
         free(threads);
     #endif

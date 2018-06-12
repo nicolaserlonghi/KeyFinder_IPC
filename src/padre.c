@@ -79,8 +79,7 @@ int padre(char* input_file, char* output_file) {
 	}
 
 	if(pid_logger == 0) {
-		// Questo è logger
-		return logger();
+		exit(logger());
 	}
 
 	// creo il sottoprocesso figlio
@@ -91,7 +90,7 @@ int padre(char* input_file, char* output_file) {
 
 	if(pid_figlio == 0) {
 		// Questo è il figlio
-		return figlio(lines);
+		exit(figlio(lines));
 	}
 	// questo è il padre
 
@@ -112,7 +111,6 @@ int padre(char* input_file, char* output_file) {
 	detach_segments(s1, shmid_input);
 	detach_segments(s2, shmid_output);
 
-
 	return 0;
 }
 
@@ -120,14 +118,15 @@ int padre(char* input_file, char* output_file) {
 // Creo il segmento di memoria condiviso
 void* attach_segments(key_t key, size_t size, int flags) {
 	int shmid; // id shared memory
-	/* Creo il segmento */
+
+	// Creo il segmento
 	if ((shmid = shmget (key , size, flags)) < 0) {
 		syserr("padre", "shmget");
 	   	exit (1);
 	}
 	// indirizzo del segmento di memoria collegato al spazio di indirizzamento del processo
 	void *shm;
-	/* Attacco il segmento all' area dati del processo */
+	// Attacco il segmento all'area dati del processo
 	if ((shm = shmat (shmid , NULL , 0)) == ( void *) -1) {
 		syserr("padre", "shmat");
 	  	exit (1);
@@ -217,7 +216,6 @@ void load_file(char* name, struct Line* segment, int input_fd) {
 					temp[i] = 0;
 				}
 			}
-			
 		}
 	}
 
@@ -229,6 +227,7 @@ void load_file(char* name, struct Line* segment, int input_fd) {
 
 void save_keys(char* name, unsigned* keys, int lines) {
 	int fd;
+
 	// TODO: Open sovrascrivere da chidere
 	if((fd = creat(name, O_RDWR ^ 0644)) == -1) {
         syserr("padre", "impossibile creare il file");
@@ -252,8 +251,9 @@ void save_keys(char* name, unsigned* keys, int lines) {
 
 int check_keys(unsigned* keys, struct Line* input, int lines) {
 	int i = 0;
+
 	for(i = 0; i < lines; i++) {
-		struct Line* line = (struct Line*)(input + (i * sizeof(struct Line)));
+		struct Line* line = (struct Line*)(&input[i]);
 		unsigned key = keys[i];
 
 		// Cripto il testo in chiaro con la chiave trovata e controllo che sia corretto
@@ -265,7 +265,7 @@ int check_keys(unsigned* keys, struct Line* input, int lines) {
 				}
 			}
 		}
-
-		return 0;
 	}
+
+	return 0;
 }

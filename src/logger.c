@@ -28,7 +28,6 @@ int logger() {
         sleep(1);
     }
     
-
     // Chiudo la coda
     if (msgctl(msgid, IPC_RMID, NULL) == -1) {
         syserr("logger", "Eliminazione della coda dei messaggi fallita");

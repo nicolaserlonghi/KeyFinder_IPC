@@ -9,8 +9,10 @@
 #include <fcntl.h>
 #include <sys/msg.h>
 #include <sys/time.h>
-#include <pthread.h>
-#include <errno.h>
+
+#if THREAD == 1
+    #include <pthread.h>
+#endif
 
 #include <constants.h>
 #include <helpers.h>
@@ -19,7 +21,6 @@
 
 
 int nipote(int mid, int lines) {
-    
     // Ottengo il segmento di memoria condiviso per l'input
     int shmid_s1;
     if((shmid_s1 = shmget(SHMKEY_INPUT, sizeof(struct Status) + (sizeof(struct Line) * lines), 0666)) < 0) {
@@ -66,11 +67,11 @@ int load_string(int lines, int mid, struct Status* status, struct Line* input, v
     status->granson = mid;
     status->id_string = ++my_string;
     // Segnalo lo stato
-    if(THREAD == 0) {
+    #if THREAD == 0
         kill(getppid(), SIGUSR1);
-    } else {
+    #else
         kill(getpid(), SIGUSR1);
-    }
+    #endif
     
     lock(1);
     unlock(0);
@@ -78,6 +79,7 @@ int load_string(int lines, int mid, struct Status* status, struct Line* input, v
 
     // Cerco la chiave
     find_key(line, (my_string-1), output);
+    
     return 0;
 }
 
@@ -94,12 +96,7 @@ void lock(int n_sem) {
     sops->sem_flg = 0;
 
     if (semop(semid, sops, 1) == -1) {
-         if(errno == EINTR) {
-            alarm(1);
-            if (semop(semid, sops, 1) == -1) {
-                syserr("nipote", "impossibile bloccare il semaforo");
-            }
-        }
+        syserr("nipote", "impossibile bloccare il semaforo");
     }
 
     free(sops);
@@ -118,12 +115,7 @@ void unlock(int n_sem) {
     sops->sem_flg = 0;
 
     if (semop(semid, sops, 1) == -1) {
-         if(errno == EINTR) {
-            alarm(1);
-            if (semop(semid, sops, 1) == -1) {
-                syserr("nipote", "impossibile bloccare il semaforo");
-            }
-        }
+        syserr("nipote", "impossibile bloccare il semaforo");
     }
 
     free(sops);

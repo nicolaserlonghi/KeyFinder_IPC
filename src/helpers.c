@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <ctype.h>
+
 #include <helpers.h>
 
 int string_length(char* string){
@@ -137,5 +138,5 @@ void syserr (char *prog, char *msg) {
     temp = concat_string(temp, msg);
     printing(temp);
     perror ("system error");
-  exit (1);
+    exit (1);
 }
