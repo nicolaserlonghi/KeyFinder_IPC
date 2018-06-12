@@ -58,7 +58,6 @@ int padre(char* input_file, char* output_file) {
 		}
     }
 
-	printf("lines = %d\n", lines);
 	// Riposiziono l'offset a zero
 	lseek(input_fd, 0, SEEK_SET);
 
@@ -123,14 +122,14 @@ void* attach_segments(key_t key, size_t size, int flags) {
 	int shmid; // id shared memory
 	/* Creo il segmento */
 	if ((shmid = shmget (key , size, flags)) < 0) {
-		perror (" shmget ");
+		syserr("padre", "shmget");
 	   	exit (1);
 	}
 	// indirizzo del segmento di memoria collegato al spazio di indirizzamento del processo
 	void *shm;
 	/* Attacco il segmento all' area dati del processo */
 	if ((shm = shmat (shmid , NULL , 0)) == ( void *) -1) {
-	  	perror (" shmat ");
+		syserr("padre", "shmat");
 	  	exit (1);
 	}
 
@@ -139,8 +138,6 @@ void* attach_segments(key_t key, size_t size, int flags) {
 	} else {
 		shmid_output = shmid;
 	}
-	char buffer[] = "Memoria condivisa creata";
-	printing(buffer);
 
 	return shm;
 }
@@ -153,8 +150,6 @@ void detach_segments(char* shm, int shmid) {
   	if(shmctl(shmid , IPC_RMID , NULL ) == -1) {
 		syserr("padre", "errore eliminazione memoria condivisa");
 	}
-	char buffer[] = "Memoria condivisa eliminata";
-	printing(buffer);
 }
 
 
@@ -225,8 +220,6 @@ void load_file(char* name, struct Line* segment, int input_fd) {
 			
 		}
 	}
-	char buffer[] = "File letto e caricato in memoria";
-	printing(buffer);
 
 	// Chiudo il file
 	if(close(input_fd) == -1) {

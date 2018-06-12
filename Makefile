@@ -48,7 +48,12 @@ threads:
 	
 
 help:
-	@echo TODO
+	@echo all: compila tutti i target
+	@echo clean: pulisce i file intermedi e l’eseguibile
+	@echo doc: genera la documentazione
+	@echo help: stampa l’elenco dei target possibili
+	@echo install: copia l’eseguibile nella cartella​ bin
+	@echo threads:​ compila la versione con le threads
 
 clean:
 	@echo Clean

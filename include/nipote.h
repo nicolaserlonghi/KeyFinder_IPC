@@ -13,7 +13,9 @@
  */
 int nipote(int id, int lines);
 
-void* nipote_thread(void* arg);
+#if THREAD == 1
+    void* nipote_thread(void* arg);
+#endif
 
 /**
  * @brief legge la stringa dal segmento S1
@@ -43,7 +45,7 @@ void find_key(struct Line* line, int my_string, void* output);
  * @brief deposita il messaggio "chiave trovata/secondi" nella coda di messagi del processo logger
  * @param time_spent tempo impiegato per la ricerca della chiave
  */
-void send_timeelapsed(int time_spent);
+void send_timeelapsed(time_t time_spent);
 
 /*
  * @brief salva la chiave nel segmento S2

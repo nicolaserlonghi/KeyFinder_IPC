@@ -46,7 +46,7 @@ int figlio(int lines) {
     free(sops);
 
 
-    if(THREAD == 0) { 
+    #if THREAD == 0 
         // Creo nipote 1
         pid_t pid_nipote1 = fork();
         if(pid_nipote1 == -1) {
@@ -67,7 +67,7 @@ int figlio(int lines) {
         // Attendo la terminazione di entrambi i nipoti
         wait(&pid_nipote1);
         wait(&pid_nipote2);
-    } else {
+    #else
         int num_threads, i;
 
         pthread_t* threads;   // per tenere traccia degli identificatori delle thread
@@ -78,7 +78,7 @@ int figlio(int lines) {
 
         // Viene creato un thread per ogni riga del file di input
         num_threads = 0;
-        for(i = 0; i < 32 && i < lines; i++) {
+        for(i = 0; i < NUM_THREADS && i < lines; i++) {
 
             package = (struct Package *)malloc(sizeof(struct Package));
             package->id = num_threads+1;
@@ -95,7 +95,7 @@ int figlio(int lines) {
         }
         free(package);
         free(threads);
-    }
+    #endif
 
     send_terminate();
 
@@ -103,9 +103,6 @@ int figlio(int lines) {
     if(semctl(semid, 0, IPC_RMID) == -1) {
         syserr("figlio", "semctl");
     }
-
-    char buffer[] = "Semaforo eliminato";
-    printing(buffer);
 }
 
 void status_updated() {

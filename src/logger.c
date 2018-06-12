@@ -22,8 +22,6 @@ int logger() {
 	if((msgid = msgget(MSGKEY, (0666|IPC_CREAT|IPC_EXCL))) == -1) {
         syserr("logger", "Creazione della coda di messaggi fallita");
 	}
-    char buffer[] = "Coda messaggi creata";
-    printing(buffer);
 
     // Ricevo i messaggi
     while(polling_receive(msgid) == 0) {
@@ -35,9 +33,6 @@ int logger() {
     if (msgctl(msgid, IPC_RMID, NULL) == -1) {
         syserr("logger", "Eliminazione della coda dei messaggi fallita");
 	}
-
-    char buf[] = "Coda messaggi eliminata";
-    printing(buf);
 	
     return 1;
 }
@@ -53,16 +48,14 @@ int polling_receive(int msgid) {
     if(message->mtype == 1) {
         // Ricevo e stampare tutti i messaggi rimasti nella coda
         do {
-            char* buffer = concat_string("Message = ", message->text);
-            printing(buffer);
+            printing(message->text);
         } while (msgrcv(msgid, message, sizeof(struct Message) - sizeof(message->mtype), 0, IPC_NOWAIT) != -1);
         
         return -1;
     }
 
     // stampo il contenuto del messaggio
-    char* buffer = concat_string("Message = ", message->text);
-    printing(buffer);
+    printing(message->text);
     free(message);
 
     return 0;

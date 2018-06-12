@@ -39,10 +39,10 @@ char* int_to_string(int numero){
     int val = numero;
     int cifre = 0;
 
-    while(val != 0){
+    do {
         val = val / 10;
         cifre++;
-    }
+    } while(val != 0);
 
     char *new_string = (char*) malloc(sizeof(char) * cifre + 1);
 
@@ -133,7 +133,9 @@ void printing(char *stringa){
 
 void syserr (char *prog, char *msg) {
 
-  fprintf (stderr, "%s - error: %s\n",prog, msg);
-  perror ("system error");
+    char* temp = concat_string(prog, ", ");
+    temp = concat_string(temp, msg);
+    printing(temp);
+    perror ("system error");
   exit (1);
 }

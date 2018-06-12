@@ -10,6 +10,7 @@
 #include <sys/msg.h>
 #include <sys/time.h>
 #include <pthread.h>
+#include <errno.h>
 
 #include <constants.h>
 #include <helpers.h>
@@ -93,7 +94,12 @@ void lock(int n_sem) {
     sops->sem_flg = 0;
 
     if (semop(semid, sops, 1) == -1) {
-        syserr("nipote", "impossibile bloccare il semaforo");
+         if(errno == EINTR) {
+            alarm(1);
+            if (semop(semid, sops, 1) == -1) {
+                syserr("nipote", "impossibile bloccare il semaforo");
+            }
+        }
     }
 
     free(sops);
@@ -112,7 +118,12 @@ void unlock(int n_sem) {
     sops->sem_flg = 0;
 
     if (semop(semid, sops, 1) == -1) {
-        syserr("nipote", "impossibile sbloccare il semaforo");
+         if(errno == EINTR) {
+            alarm(1);
+            if (semop(semid, sops, 1) == -1) {
+                syserr("nipote", "impossibile bloccare il semaforo");
+            }
+        }
     }
 
     free(sops);
@@ -131,14 +142,14 @@ void find_key(struct Line* line, int my_string, void* output) {
     }
     gettimeofday(&finish, NULL);
     // Calcolo il tempo impiegato
-    int time_spent = (int)(finish.tv_sec - start.tv_sec);
+    time_t time_spent = (finish.tv_sec - start.tv_sec);
 
     save_key(key, my_string, output);
     // deposito il messaggio
     send_timeelapsed(time_spent);
 }
 
-void send_timeelapsed(int time_spent) {
+void send_timeelapsed(time_t time_spent) {
     struct Message* message = (struct Message*)malloc(sizeof(struct Message));
 
     // Apertura della coda di messaggi corrispondente alla chiave MSGKEY
@@ -149,6 +160,7 @@ void send_timeelapsed(int time_spent) {
     }
     // Converto il tempo in stringa
     char* time = int_to_string(time_spent);
+    char* a = int_to_string(0);
     // Creo il messaggio da inviare
     char* tmp = "Chiave trovata in ";
     char* buffer = concat_string(tmp, time);

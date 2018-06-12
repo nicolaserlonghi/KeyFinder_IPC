@@ -4,6 +4,8 @@
 #ifndef PADRE_H_
 #define PADRE_H_
 
+#include "types.h"
+
 /**
  * @brief wrapper del processo padre
  * @param input descrittore file input
