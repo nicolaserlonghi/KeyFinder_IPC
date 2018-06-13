@@ -52,7 +52,8 @@ char* int_to_string(int numero){
         new_string[i] = (char) (numero % 10) + '0';
         numero = numero/10;
     }
-    new_string[i] = '\0';
+    
+    new_string[cifre] = '\0';
 
     return new_string; 
 }

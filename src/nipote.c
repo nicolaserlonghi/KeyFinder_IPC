@@ -122,8 +122,6 @@ void unlock(int n_sem) {
 }
 
 void find_key(struct Line* line, int my_string, void* output) {
-    int fine_stringa = 0;
-    int i = 0, j = 0;
     unsigned key = 0;
     struct timeval start, finish;
 
@@ -134,14 +132,14 @@ void find_key(struct Line* line, int my_string, void* output) {
     }
     gettimeofday(&finish, NULL);
     // Calcolo il tempo impiegato
-    time_t time_spent = (finish.tv_sec - start.tv_sec);
+    int time_spent = (int)(finish.tv_sec - start.tv_sec);
 
     save_key(key, my_string, output);
     // deposito il messaggio
     send_timeelapsed(time_spent);
 }
 
-void send_timeelapsed(time_t time_spent) {
+void send_timeelapsed(int time_spent) {
     struct Message* message = (struct Message*)malloc(sizeof(struct Message));
 
     // Apertura della coda di messaggi corrispondente alla chiave MSGKEY
@@ -151,11 +149,10 @@ void send_timeelapsed(time_t time_spent) {
 		exit(1);
     }
     // Converto il tempo in stringa
-    char* time = int_to_string(time_spent);
-    char* a = int_to_string(0);
+    char* mtime = int_to_string(time_spent);
     // Creo il messaggio da inviare
     char* tmp = "Chiave trovata in ";
-    char* buffer = concat_string(tmp, time);
+    char* buffer = concat_string(tmp, mtime);
     int i = 0;
     for(i = 0; i < string_length(buffer); i++) {
         message->text[i] = buffer[i];

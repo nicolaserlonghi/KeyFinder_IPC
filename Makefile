@@ -10,12 +10,11 @@ CFLAGS     := -I include/
 MKDIR      := mkdir -p
 
 
-
 ifeq ($(EXECUTE), thread)
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c
 	@echo Compile $< -> $@
 	@$(MKDIR) build
-	$(CC) -D THREAD=1 $(CFLAGS) -c $< -o $@
+	$(CC) -D THREAD=1 $(CFLAGS) -c $< -o $@ 
 
 $(PROJECT): $(OBJ)
 	@echo Linking $(PROJECT)

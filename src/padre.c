@@ -15,7 +15,6 @@
 int shmid_input;
 int shmid_output;
 
-
 int padre(char* input_file, char* output_file) {
 	int input_fd; // File descriptor
 
