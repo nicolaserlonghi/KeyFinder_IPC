@@ -22,6 +22,10 @@ int padre(char* input_file, char* output_file) {
 		syserr("padre", "il file di input non esiste");
 		return 1;
 	}
+
+	if(access(output_file, F_OK | R_OK) == 0) {
+		syserr("padre", "Il file di output esiste già");
+	}
 	
     if((input_fd = open(input_file, O_RDONLY, 0644)) == -1) {
         syserr("padre", "impossibile aprire il file");

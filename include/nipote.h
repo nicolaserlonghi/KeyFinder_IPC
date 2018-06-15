@@ -14,7 +14,7 @@
 int nipote(int id, int lines);
 
 #if THREAD == 1
-    void* nipote_thread(void* arg);
+void* nipote_thread(void* arg);
 #endif
 
 /**

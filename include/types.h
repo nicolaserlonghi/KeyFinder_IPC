@@ -33,11 +33,12 @@ struct Line {
 /**
  * @brief struttura gestione thread
  */
+#if THREAD == 1
 struct Package {
 	int id;
 	int lines;
 };
-
+#endif
 
 #endif
 

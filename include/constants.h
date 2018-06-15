@@ -31,7 +31,9 @@
 /**
  * @brief numero di thread generati
  */
+#if THREAD == 1
 #define NUM_THREADS 4
+#endif
 
 /**
  * @brief compilazione con i thread attivata o disattivata
