@@ -33,6 +33,9 @@
  */
 #define NUM_THREADS 4
 
+/**
+ * @brief compilazione con i thread attivata o disattivata
+ */
 #ifndef THREAD
 
 #define THREAD

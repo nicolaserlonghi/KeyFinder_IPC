@@ -49,13 +49,14 @@ int nipote(int mid, int lines) {
     return 0;
 }
 
+#if THREAD == 1
 void* nipote_thread(void* arg) {
     struct Package* package = (struct Package *)arg;
     nipote(package->id, package->lines);
 
     return (NULL);
 }
-
+#endif
 
 int load_string(int lines, int mid, struct Status* status, struct Line* input, void* output) {
     lock(0);

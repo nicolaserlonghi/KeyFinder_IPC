@@ -23,9 +23,20 @@ int logger() {
         syserr("logger", "Creazione della coda di messaggi fallita");
 	}
 
+    // Mi registro per catturare il segnale SIGALRM
+	signal(SIGALRM, nullfcn);
+
     // Ricevo i messaggi
     while(polling_receive(msgid) == 0) {
-        sleep(1);
+    
+        // Imposto l'allarme
+        alarm(1);
+
+        // Aspetto al ricezione di un segnale
+        pause();
+
+        // Disabilito l'allarme per evitare che scatti involontariamente
+        alarm(0);
     }
     
     // Chiudo la coda
@@ -58,4 +69,8 @@ int polling_receive(int msgid) {
     free(message);
 
     return 0;
+}
+
+// funzione che non fa nulla
+void nullfcn() {
 }

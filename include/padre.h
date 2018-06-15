@@ -8,8 +8,8 @@
 
 /**
  * @brief wrapper del processo padre
- * @param input descrittore file input
- * @param output descrittore file output
+ * @param input_file descrittore file input
+ * @param output_file descrittore file output
  * @return 0 se non ci sono stati problemi, altrimenti 1
  */
 int padre(char* input_file, char* output_file);
@@ -33,6 +33,7 @@ void detach_segments(char* shm, int shmid);
  * @brief carica il file di input
  * @param name nome file
  * @param segment indirizzo del segmento di memoria
+ * @param input_fd descriptor file di input
  */
 void load_file(char* name, struct Line* segment, int input_fd);
 

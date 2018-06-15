@@ -22,11 +22,6 @@ int padre(char* input_file, char* output_file) {
 		syserr("padre", "il file di input non esiste");
 		return 1;
 	}
-
-	if(access(output_file, F_OK | R_OK) == 0) {
-		// TODO: Decidere che fare
-		//syserr("padre", "Il file di output esiste già");
-	}
 	
     if((input_fd = open(input_file, O_RDONLY, 0644)) == -1) {
         syserr("padre", "impossibile aprire il file");
@@ -99,10 +94,8 @@ int padre(char* input_file, char* output_file) {
 	wait(&pid_logger);
 
 	if(check_keys(s2, file, lines) == -1) {
-		// TODO: decidere che fare
 		char buffer[] = "Le chiavi trovate non sono corrette";
 		printing(buffer);
-		//syserr("padre", "Le chiavi trovate non sono corrette");
 	}
 	save_keys(output_file, s2, lines);
 
@@ -227,7 +220,6 @@ void load_file(char* name, struct Line* segment, int input_fd) {
 void save_keys(char* name, unsigned* keys, int lines) {
 	int fd;
 
-	// TODO: Open sovrascrivere da chidere
 	if((fd = creat(name, O_RDWR ^ 0644)) == -1) {
         syserr("padre", "impossibile creare il file");
     }

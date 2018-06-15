@@ -17,6 +17,11 @@ int logger();
  */
 int polling_receive(int msgid);
 
+/**
+ * @brief funzione di comodo che non fa nulla
+ */
+void nullfcn();
+
 #endif
 
 /// @}
