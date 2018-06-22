@@ -92,9 +92,8 @@ int padre(char* input_file, char* output_file) {
 	}
 	// questo è il padre
 
-	// Attendo la terminazione del figlio
+	// Attendo la terminazione del figlio e del logger
 	wait(&pid_figlio);
-	// Attendo la terminazione del logger
 	wait(&pid_logger);
 
 	if(check_keys(s2, file, lines) == -1) {
