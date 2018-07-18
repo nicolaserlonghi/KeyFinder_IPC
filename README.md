@@ -18,7 +18,7 @@ Read report to more information
 # To clean project
 > *make clean*
 
-# To doc
+# To generate doc
 > *make doc*
 
 # To help
